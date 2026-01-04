@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="product-details" id="productDetails"></div>
+
+<script>
+const id = new URLSearchParams(window.location.search).get("id");
+
+fetch(`http://localhost:5000/api/products/${id}`)
+  .then(res => res.json())
+  .then(product => {
+    document.getElementById("productDetails").innerHTML = `
+      <h2>${product.name}</h2>
+      <p><strong>Category:</strong> ${product.category}</p>
+      <p><strong>Price:</strong> ₹${product.price}</p>
+      <a href="index.html">⬅ Back to Products</a>
+    `;
+  });
+</script>
+
+</body>
+</html>

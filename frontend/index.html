@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>E-Commerce Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <h1>E-Commerce Store</h1>
+</header>
+
+<section class="filters">
+  <select id="categoryFilter">
+    <option value="all">All Categories</option>
+    <option value="electronics">Electronics</option>
+    <option value="clothing">Clothing</option>
+    <option value="accessories">Accessories</option>
+  </select>
+
+  <select id="priceFilter">
+    <option value="all">All Prices</option>
+    <option value="low">Below ₹1000</option>
+    <option value="mid">₹1000 – ₹5000</option>
+    <option value="high">Above ₹5000</option>
+  </select>
+</section>
+
+<section id="productList" class="product-grid"></section>
+
+<script src="js/app.js"></script>
+</body>
+</html>
