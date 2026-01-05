@@ -2,34 +2,155 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>E-Commerce Store</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
+  <title>E-commerce Product Listing with Cart</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    header { background: #333; color: #fff; padding: 15px; text-align: center; }
+    .categories, .products { display: flex; flex-wrap: wrap; justify-content: center; margin: 20px; }
+    .category, .product, .cart-item {
+      background: #fff; border: 1px solid #ddd; border-radius: 10px;
+      margin: 10px; padding: 15px; text-align: center; transition: transform 0.2s;
+    }
+    .category:hover, .product:hover { transform: scale(1.05); cursor: pointer; }
+    .product img { width: 150px; height: 150px; object-fit: cover; margin-bottom: 10px; }
+    .filters { text-align: center; margin: 20px; }
+    .cart { background: #fff; margin: 20px; padding: 20px; border-radius: 10px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; }
+    .cart-item input { width: 50px; text-align: center; }
+    .total { text-align: right; font-weight: bold; font-size: 18px; margin-top: 10px; }
+    button { padding: 5px 10px; background: #28a745; border: none; color: white; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #218838; }
+    @media(max-width:600px){ .category, .product, .cart-item { width: 90%; } }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>My E-commerce Store 🛒</h1>
+  </header>
 
-<header>
-  <h1>E-Commerce Store</h1>
-</header>
+  <!-- Categories -->
+  <div class="categories">
+    <div class="category" onclick="showProducts('electronics')">Electronics</div>
+    <div class="category" onclick="showProducts('clothing')">Clothing</div>
+    <div class="category" onclick="showProducts('accessories')">Accessories</div>
+  </div>
 
-<section class="filters">
-  <select id="categoryFilter">
-    <option value="all">All Categories</option>
-    <option value="electronics">Electronics</option>
-    <option value="clothing">Clothing</option>
-    <option value="accessories">Accessories</option>
-  </select>
+  <!-- Filters -->
+  <div class="filters">
+    <label>Filter by Price: </label>
+    <select onchange="filterProducts(this.value)">
+      <option value="all">All</option>
+      <option value="low">Below ₹1000</option>
+      <option value="high">Above ₹1000</option>
+    </select>
+  </div>
 
-  <select id="priceFilter">
-    <option value="all">All Prices</option>
-    <option value="low">Below ₹1000</option>
-    <option value="mid">₹1000 – ₹5000</option>
-    <option value="high">Above ₹5000</option>
-  </select>
-</section>
+  <!-- Product Listing -->
+  <div class="products" id="product-list"></div>
 
-<section id="productList" class="product-grid"></section>
+  <!-- Cart -->
+  <div class="cart">
+    <h2>🛒 Your Cart</h2>
+    <div id="cart-items"></div>
+    <div class="total" id="cart-total">Total: ₹0</div>
+  </div>
 
-<script src="js/app.js"></script>
+  <script>
+    const products = {
+      electronics: [
+        {name: "Mobile Phone", price: 12000, img: "https://via.placeholder.com/150"},
+        {name: "Headphones", price: 800, img: "https://via.placeholder.com/150"},
+        {name: "Laptop", price: 45000, img: "https://via.placeholder.com/150"}
+      ],
+      clothing: [
+        {name: "T-shirt", price: 500, img: "https://via.placeholder.com/150"},
+        {name: "Jeans", price: 1500, img: "https://via.placeholder.com/150"},
+        {name: "Jacket", price: 2500, img: "https://via.placeholder.com/150"}
+      ],
+      accessories: [
+        {name: "Watch", price: 2000, img: "https://via.placeholder.com/150"},
+        {name: "Bag", price: 700, img: "https://via.placeholder.com/150"},
+        {name: "Belt", price: 400, img: "https://via.placeholder.com/150"}
+      ]
+    };
+
+    let currentCategory = "";
+    let cart = [];
+
+    function showProducts(category) {
+      currentCategory = category;
+      const productList = document.getElementById("product-list");
+      productList.innerHTML = "";
+      products[category].forEach((p, index) => {
+        productList.innerHTML += `
+          <div class="product">
+            <img src="${p.img}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <p>₹${p.price}</p>
+            <button onclick="addToCart('${category}', ${index})">Add to Cart</button>
+          </div>`;
+      });
+    }
+
+    function filterProducts(type) {
+      if (!currentCategory) return;
+      const productList = document.getElementById("product-list");
+      productList.innerHTML = "";
+      let filtered = products[currentCategory];
+      if (type === "low") {
+        filtered = filtered.filter(p => p.price < 1000);
+      } else if (type === "high") {
+        filtered = filtered.filter(p => p.price >= 1000);
+      }
+      filtered.forEach((p, index) => {
+        productList.innerHTML += `
+          <div class="product">
+            <img src="${p.img}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <p>₹${p.price}</p>
+            <button onclick="addToCart('${currentCategory}', ${products[currentCategory].indexOf(p)})">Add to Cart</button>
+          </div>`;
+      });
+    }
+
+    function addToCart(category, index) {
+      const product = products[category][index];
+      const existing = cart.find(item => item.name === product.name);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({...product, qty: 1});
+      }
+      updateCart();
+    }
+
+    function updateCart() {
+      const cartItems = document.getElementById("cart-items");
+      const cartTotal = document.getElementById("cart-total");
+      cartItems.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, idx) => {
+        total += item.price * item.qty;
+        cartItems.innerHTML += `
+          <div class="cart-item">
+            <span>${item.name} - ₹${item.price}</span>
+            <input type="number" min="1" value="${item.qty}" onchange="changeQty(${idx}, this.value)">
+            <button onclick="removeFromCart(${idx})">Remove</button>
+          </div>`;
+      });
+      cartTotal.innerText = "Total: ₹" + total;
+    }
+
+    function changeQty(index, qty) {
+      cart[index].qty = parseInt(qty);
+      updateCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+  </script>
 </body>
 </html>
